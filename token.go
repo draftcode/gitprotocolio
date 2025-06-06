@@ -158,8 +158,12 @@ func (s *PacketScanner) Scan() bool {
 		s.err = SyntaxError("unknown special packet: " + string(bs))
 		return false
 	}
-	if bytes.Equal(bs[4:8], []byte("ERR ")) {
+	if len(bs) >= 8 && bytes.Equal(bs[4:8], []byte("ERR ")) {
 		s.err = ErrorPacket(string(bs[8:]))
+		return false
+	}
+	if len(bs) == 7 && bytes.Equal(bs[4:7], []byte("ERR")) {
+		s.err = ErrorPacket("")
 		return false
 	}
 	s.curr = BytesPacket(bs[4:])
